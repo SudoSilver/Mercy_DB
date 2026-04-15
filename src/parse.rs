@@ -18,7 +18,8 @@ pub fn parser(tokens: Vec<String>, mut i: usize) -> Vec<Field> {
     return fields;
 }
 
-pub fn parse_db(tokens: Vec<String>, 
+pub fn parse_db(
+        tokens: Vec<String>,
         mut i: usize, 
         entrie_size: usize
     ) -> Vec<Entrie> {
