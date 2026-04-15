@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 pub enum Types {
     StringInstance,
     Int,
@@ -7,22 +8,25 @@ pub enum Types {
     Ind,
 }
 
+#[derive(Debug)]
 pub enum Value {
     StringInstance(String),
     Int(i64),
     Uint(u64),
-    float(f64),
+    Float(f64),
     Bool(bool),
     Ind(usize),
 }
 
+#[derive(Debug)]
 pub struct Entrie {
-    fields: Vec<Value>,
+    pub fields: Vec<Value>,
 }
 
+#[derive(Debug, Clone)]
 pub struct Field {
-    name: String,
-    ty: Types,
+    pub name: String,
+    pub ty: Types,
 }
 
 impl Field {
