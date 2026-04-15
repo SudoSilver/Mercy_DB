@@ -57,5 +57,11 @@ pub struct DB {
 impl DB {
     pub fn from(schema: Schema) -> Self {
         let entry_size = Schema.fields.len();
+    
+        let contents: String = fs::read_to_string(path)
+            .expect(&format!("[ERROR]: Unable to read file {}", path));
+        
+        let chars: Vec<char> = contents.chars().collect(); 
+        let mut tokens = tokenize_db(chars);
     }
 }

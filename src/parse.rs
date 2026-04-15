@@ -1,4 +1,4 @@
-use crate::fields::Field;
+use crate::fields::{ Field, Entrie };
 
 const TOKENS_PER_FIELD: usize = 2;
 
@@ -16,4 +16,14 @@ pub fn parser(tokens: Vec<String>, mut i: usize) -> Vec<Field> {
     }
 
     return fields;
+}
+
+pub fn parse_db(tokens: Vec<String>, 
+        mut i: usize, 
+        entrie_size: usize
+    ) -> Vec<Entrie> {
+    
+    let mut entries: Vec<Entrie> = Vec::new();
+
+    
 }

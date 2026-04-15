@@ -16,6 +16,10 @@ pub enum Value {
     Ind(usize),
 }
 
+pub struct Entrie {
+    fields: Vec<Value>,
+}
+
 pub struct Field {
     name: String,
     ty: Types,
