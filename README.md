@@ -26,6 +26,11 @@ age = uint
 }
 ```
 
+## Planned features
+Writting to the DB
+Not having the DB loaded in ram all the time
+make a querry engine
+
 ## Notes from the dev
 
 The system is designed to be simple and effective for small datasets 
