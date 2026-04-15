@@ -62,6 +62,6 @@ impl DB {
             .expect(&format!("[ERROR]: Unable to read file {}", path));
         
         let chars: Vec<char> = contents.chars().collect(); 
-        let mut tokens = tokenize_db(chars);
+        let mut tokens = tokenize(chars);
     }
 }
