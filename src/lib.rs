@@ -2,9 +2,9 @@ mod fields;
 mod tokens;
 mod parse;
 
-use crate::fields::{ Field, Entrie };
-use crate::tokens::tokenize;
-use crate::parse::{ parser, parse_db };
+pub use crate::fields::{ Field, Entrie, Value, Types };
+pub use crate::tokens::tokenize;
+pub use crate::parse::{ parser, parse_db };
 
 use std::fs;
 
