@@ -1,76 +1,80 @@
-mod fields;
 mod tokens;
 mod parse;
 
-pub use crate::fields::{ Field, Entrie, Value, Types };
-pub use crate::tokens::tokenize;
-pub use crate::parse::{ parser, parse_db };
+use crate::tokens::tokenize;
+use crate::parse::parser;
 
 use std::fs;
+use std::fs::OpenOptions;
+use std::collections::HashMap;
+use std::io::Write;
 
-#[derive(Debug)]
-pub struct Schema {
-    pub name: String,
-    pub fields: Vec<Field>,
-}
-
-impl Schema {
-    pub fn from(path: &str) -> Self {
-        let mut schema = Schema {
-            name: String::new(),
-            fields: Vec::new(),
-        };
-        let contents: String = fs::read_to_string(path)
-            .expect(&format!("[ERROR]: Unable to read file {}", path));
-
-        let characters: Vec<char> = contents.chars().collect();
-        let mut index: usize = 0;
-
-        let tokens = tokenize(characters);
-
-        if tokens.len() <= 1 {
-            panic!("[ERROR]: Invalid Schema structure");
-        }
-
-        if ((tokens.len() - 1) % 2) != 0 {
-            panic!("[ERROR]: Invalid Schema structure");
-        }
-
-        schema.name = tokens[index].clone();
-        index += 1;
-
-        let fields = parser(tokens, index);
-        schema.fields = fields;
-
-        println!("[MERCY]: Schema created successfully");
-
-        return schema;
-    }
-}
-
-#[derive(Debug)]
 pub struct DB {
-    pub schema: Schema,
-    pub entry_size: usize,
-    pub values: Vec<Entrie>,
+    entries: HashMap<String, Vec<String>>,
+    entrie_size: usize,
+    path: String,
 }
 
 impl DB {
-    pub fn from(schema: Schema, path: &str) -> Self {
-        let entry_size = schema.fields.len();
-        let fields = schema.fields.clone();
+    // note that es (entry size) is an unsigned integer
+    // it should be the size of each row (Vec<String>)
+    pub fn from(path: &str, es: usize) -> Option<Self> {
+        let raw = match fs::read_to_string(path) {
+            Ok(content) => content,
+            Err(_) => return None,
+        };
 
-        let contents: String = fs::read_to_string(path)
-            .expect(&format!("[ERROR]: Unable to read file {}", path));
-        
-        let chars: Vec<char> = contents.chars().collect(); 
-        let tokens = tokenize(chars);
-        let values: Vec<Entrie> = parse_db(tokens, entry_size, fields);
+        let chars: Vec<char> = raw.chars().collect();
+        let tokens: Vec<String> = tokenize(chars);
 
-        return Self {
-            schema,
-            entry_size,
-            values,
+        let entries = parser(tokens, es);
+
+        return Some( Self {
+            entries,
+            entrie_size: es,
+            path: path.to_string(),
+        });
+    }
+
+    pub fn push(&mut self, name: String, row: Vec<String>) -> bool {
+        if row.len() != self.entrie_size {
+            return false;
         }
+
+        if self.entries.contains_key(&name) {
+            return false;
+        }
+
+        let mut file = match OpenOptions::new()
+            .append(true)
+            .create(true)
+            .open(&self.path) {
+                Ok(file) => file,
+                Err(_) => return false,
+            };
+
+        let original_len = file.metadata().map(|m| m.len()).unwrap_or(0);
+
+        if let Err(_) = write!(file, "\n{}", name) {
+            let _ = file.set_len(original_len);
+            return false;
+        }
+
+        if row.iter().try_for_each(|item| write!(file, "\n{}", item)).is_err() {
+            let _ = file.set_len(original_len);
+            return false;
+        }
+
+
+        self.entries.insert(name, row);
+
+        return true;
+    }
+
+    pub fn read(&self, name: String) -> Option<&Vec<String>> {
+        if let Some(data) = self.entries.get(&name) {
+            return Some(data);
+        }
+        return None;
     }
 }

@@ -1,5 +1,0 @@
-Test {
-    user: string
-    age: int
-    admin: bool
-}
